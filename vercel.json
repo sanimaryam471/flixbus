@@ -1,0 +1,8 @@
+{
+  "routes": [
+    {
+      "src": "/d/(.*)",
+      "dest": "/api/download?file=$1"
+    }
+  ]
+}
