@@ -1,28 +1,18 @@
+import fs from "fs";
+import path from "path";
+
 export default function handler(req, res) {
-
   const file = req.query.file;
+  if (!file) return res.status(400).send("No file specified");
 
-  if (!file) {
-    res.status(400).send("No file specified");
-    return;
-  }
+  const filePath = path.join(process.cwd(), "public/pdfs", file);
 
-  const fileUrl = `/pdfs/${file}`;
+  if (!fs.existsSync(filePath)) return res.status(404).send("File not found");
 
-  res.setHeader("Content-Type", "text/html");
+  // Force download
+  res.setHeader("Content-Disposition", `attachment; filename=${file}`);
+  res.setHeader("Content-Type", "application/pdf");
 
-  res.send(`
-    <html>
-      <body>
-        <script>
-          const a = document.createElement('a');
-          a.href = '${fileUrl}';
-          a.download = '${file}';
-          document.body.appendChild(a);
-          a.click();
-          window.location = "https://www.flixbus.fr/";
-        </script>
-      </body>
-    </html>
-  `);
+  const fileBuffer = fs.readFileSync(filePath);
+  res.send(fileBuffer);
 }
